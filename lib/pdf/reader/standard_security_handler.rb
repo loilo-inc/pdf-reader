@@ -25,6 +25,7 @@
 #
 ################################################################################
 require 'digest/md5'
+require 'openssl'
 require 'rc4'
 
 class PDF::Reader
@@ -54,6 +55,7 @@ class PDF::Reader
       @encryptMeta   = opts.fetch(:encrypted_metadata, true)
       @file_id       = opts[:file_id] || ""
       @encrypt_key   = build_standard_key(opts[:password] || "")
+      @cfm           = opts[:cfm]
 
       if @key_length != 5 && @key_length != 16
         msg = "StandardSecurityHandler only supports 40 and 128 bit\
@@ -62,28 +64,40 @@ class PDF::Reader
       end
     end
 
-    # This handler supports all RC4 encryption that follows the PDF spec. It does not support
-    # AES encryption that was added in later versions of the spec.
+    # This handler supports all encryption that follows upto PDF 1.5 spec (revision 4)
     def self.supports?(encrypt)
       return false if encrypt.nil?
 
       filter = encrypt.fetch(:Filter, :Standard)
       version = encrypt.fetch(:V, 0)
       algorithm = encrypt.fetch(:CF, {}).fetch(encrypt[:StmF], {}).fetch(:CFM, nil)
-      filter == :Standard &&
-        (version <= 3 || (version == 4 && algorithm != :AESV2))
+      (filter == :Standard) && (encrypt[:StmF] == encrypt[:StrF]) &&
+        (version <= 3 || (version == 4 && ((algorithm == :V2) || (algorithm == :AESV2))))
     end
 
     ##7.6.2 General Encryption Algorithm
     #
     # Algorithm 1: Encryption of data using the RC4 or AES algorithms
     #
-    # used to decrypt RC4 encrypted PDF streams (buf)
+    # used to decrypt RC4/AES encrypted PDF streams (buf)
     #
     # buf - a string to decrypt
     # ref - a PDF::Reader::Reference for the object to decrypt
     #
     def decrypt( buf, ref )
+      case @cfm
+        when :AESV2
+          decrypt_aes128(buf, ref)
+        else
+          decrypt_rc4(buf, ref)
+      end
+    end
+
+    private
+
+    # decrypt with RC4 algorithm
+    # version <=3 or (version == 4 and CFM == V2)
+    def decrypt_rc4( buf, ref )
       objKey = @encrypt_key.dup
       (0..2).each { |e| objKey << (ref.id >> e*8 & 0xFF ) }
       (0..1).each { |e| objKey << (ref.gen >> e*8 & 0xFF ) }
@@ -92,7 +106,20 @@ class PDF::Reader
       rc4.decrypt(buf)
     end
 
-    private
+    # decrypt with AES-128-CBC algorithm
+    # when (version == 4 and CFM == AESV2)
+    def decrypt_aes128( buf, ref )
+      objKey = @encrypt_key.dup
+      (0..2).each { |e| objKey << (ref.id >> e*8 & 0xFF ) }
+      (0..1).each { |e| objKey << (ref.gen >> e*8 & 0xFF ) }
+      objKey << 'sAlT'  # Algorithm 1, b)
+      length = objKey.length < 16 ? objKey.length : 16
+      cipher = OpenSSL::Cipher.new("AES-#{length << 3}-CBC")
+      cipher.decrypt
+      cipher.key = Digest::MD5.digest(objKey)[0,length]
+      cipher.iv = buf[0..15]
+      cipher.update(buf[16..-1]) + cipher.final
+    end
 
     # Pads supplied password to 32bytes using PassPadBytes as specified on
     # pp61 of spec
@@ -125,9 +152,9 @@ class PDF::Reader
       if @revision > 2 then
         50.times { md5 = Digest::MD5.digest(md5) }
         keyBegins = md5[0, key_length]
-        #first itteration decrypt owner_key
+        #first iteration decrypt owner_key
         out = @owner_key
-        #RC4 keyed with (keyBegins XOR with itteration #) to decrypt previous out
+        #RC4 keyed with (keyBegins XOR with iteration #) to decrypt previous out
         19.downto(0).each { |i| out=RC4.new(xor_each_byte(keyBegins,i)).decrypt(out) }
       else
         out = RC4.new( md5[0, 5] ).decrypt( @owner_key )

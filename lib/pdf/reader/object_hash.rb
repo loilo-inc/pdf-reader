@@ -300,7 +300,16 @@ class PDF::Reader
           permissions: encrypt[:P].to_i,
           encrypted_metadata: encmeta,
           file_id: (deref(trailer[:ID]) || []).first,
-          password: opts[:password]
+          password: opts[:password],
+          cfm: encrypt.fetch(:CF, {}).fetch(encrypt[:StmF], {}).fetch(:CFM, nil)
+        )
+      elsif StandardSecurityHandlerV5.supports?(encrypt)
+        StandardSecurityHandlerV5.new(
+            O: encrypt[:O],
+            U: encrypt[:U],
+            OE: encrypt[:OE],
+            UE: encrypt[:UE],
+            password: opts[:password]
         )
       else
         UnimplementedSecurityHandler.new
@@ -340,6 +349,10 @@ class PDF::Reader
     #
     def get_page_objects(ref)
       obj = deref(ref)
+
+      unless obj.kind_of?(::Hash)
+        raise MalformedPDFError, "Dereferenced page object must be a dict"
+      end
 
       if obj[:Type] == :Page
         ref

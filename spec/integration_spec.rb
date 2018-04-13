@@ -518,22 +518,44 @@ describe PDF::Reader, "integration specs" do
     context "with the user pass" do
       let(:pass) { "apples" }
 
-      # TODO: remove this spec
-      it "raises UnsupportedFeatureError" do
-        expect {
-          PDF::Reader.open(filename, :password => pass) do |reader|
-            reader.page(1).text
-          end
-        }.to raise_error(PDF::Reader::EncryptedPDFError)
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
       end
 
-      it "correctly extracts text"
-      it "correctly extracts info"
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+            :CreationDate=>"D:20110814231057+10'00'",
+            :Creator=>"Writer",
+            :ModDate=>"D:20170115224117+11'00'",
+            :Producer=>"LibreOffice 3.3",
+          )
+        end
+      end
     end
 
     context "with the owner pass" do
-      it "correctly extracts text"
-      it "correctly extracts info"
+      let(:pass) { "password" }
+
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
+      end
+
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+            :CreationDate=>"D:20110814231057+10'00'",
+            :Creator=>"Writer",
+            :ModDate=>"D:20170115224117+11'00'",
+            :Producer=>"LibreOffice 3.3",
+          )
+        end
+      end
+
     end
   end
 
@@ -545,22 +567,144 @@ describe PDF::Reader, "integration specs" do
     context "with the user pass" do
       let(:pass) { "apples" }
 
-      # TODO: remove this spec
-      it "raises UnsupportedFeatureError" do
-        expect {
-          PDF::Reader.open(filename, :password => pass) do |reader|
-            reader.page(1).text
-          end
-        }.to raise_error(PDF::Reader::EncryptedPDFError)
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
       end
 
-      it "correctly extracts text"
-      it "correctly extracts info"
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+            :CreationDate=>"D:20110814231057+10'00'",
+            :Creator=>"Writer",
+            :ModDate=>"D:20170115224244+11'00'",
+            :Producer=>"LibreOffice 3.3",
+          )
+        end
+      end
+
     end
 
     context "with the owner pass" do
-      it "correctly extracts text"
-      it "correctly extracts info"
+      let(:pass) { "password" }
+
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
+      end
+
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+            :CreationDate=>"D:20110814231057+10'00'",
+            :Creator=>"Writer",
+            :ModDate=>"D:20170115224244+11'00'",
+            :Producer=>"LibreOffice 3.3",
+          )
+        end
+      end
+
+    end
+  end
+
+  context "encrypted_version5_revision5_256bit_aes_user_pass_apples_enc_metadata" do
+    let(:filename) {
+      pdf_spec_file("encrypted_version5_revision5_256bit_aes_user_pass_apples_enc_metadata")
+    }
+
+    context "with the user pass" do
+      let(:pass) { "apples" }
+
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
+      end
+
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+                                     :Author => "Gyuchang Jun",
+                                     :CreationDate => "D:20170312093033+00'00'",
+                                     :Creator => "Microsoft Word",
+                                     :ModDate => "D:20170312093033+00'00'"
+                                 )
+        end
+      end
+    end
+
+    context "with the owner pass" do
+      let(:pass) { "password" }
+
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
+      end
+
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+                                     :Author => "Gyuchang Jun",
+                                     :CreationDate => "D:20170312093033+00'00'",
+                                     :Creator => "Microsoft Word",
+                                     :ModDate => "D:20170312093033+00'00'"
+                                 )
+        end
+      end
+
+    end
+  end
+
+  context "encrypted_version5_revision5_256bit_aes_user_pass_apples_unenc_metadata" do
+    let(:filename) {
+      pdf_spec_file("encrypted_version5_revision5_256bit_aes_user_pass_apples_unenc_metadata")
+    }
+
+    context "with the user pass" do
+      let(:pass) { "apples" }
+
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
+      end
+
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+                                     :Author => "Gyuchang Jun",
+                                     :CreationDate => "D:20170312093033+00'00'",
+                                     :Creator => "Microsoft Word",
+                                     :ModDate => "D:20170312093033+00'00'"
+                                 )
+        end
+      end
+
+    end
+
+    context "with the owner pass" do
+      let(:pass) { "password" }
+
+      it "correctly extracts text" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.page(1).text).to include("This sample file is encrypted")
+        end
+      end
+
+      it "correctly extracts info" do
+        PDF::Reader.open(filename, :password => pass) do |reader|
+          expect(reader.info).to eq(
+                                     :Author => "Gyuchang Jun",
+                                     :CreationDate => "D:20170312093033+00'00'",
+                                     :Creator => "Microsoft Word",
+                                     :ModDate => "D:20170312093033+00'00'"
+                                 )
+        end
+      end
+
     end
   end
 
@@ -741,6 +885,13 @@ describe PDF::Reader, "integration specs" do
     # which matches the glyph scale factor of 1000 that non-type3 fonts use.
     # It's permitted for type3 fonts to use other FontMatrix values though,
     # and we should do a better job of extracting the text.
+    # The Page is 200pts wide and 50pts high. The first letters for each word
+    # *should* be positioned like so:
+    #
+    #   P - X: 10.3 Y: 20   Width: 7.35 Height: 8.55
+    #   G - X: 56.5 Y: 19.7 Width: 8.25 Height: 9.15
+    #   A - X: 101.5 Y: 20  Width: 8.25 Height: 9
+    #
     it "extracts text correctly" do
       pending
       PDF::Reader.open(filename) do |reader|
@@ -852,4 +1003,45 @@ describe PDF::Reader, "integration specs" do
     end
   end
 
+  context "PDF with text positioned at 0,0" do
+    let(:filename) { pdf_spec_file("minimal") }
+
+    it "extracts text correctly" do
+      PDF::Reader.open(filename) do |reader|
+        page = reader.page(1)
+        expect(page.text).to eq("Hello World")
+      end
+    end
+  end
+
+  context "Malformed PDF" do
+    let(:filename) { pdf_spec_file("trailer_root_is_not_a_dict") }
+
+    it "raises an exception if trailer Root is not a dict" do
+      PDF::Reader.open(filename) do |reader|
+        expect { reader.page(1) }.to raise_error(PDF::Reader::MalformedPDFError)
+      end
+    end
+  end
+
+  context "PDF with missing page data" do
+    let(:filename) { pdf_spec_file("invalid_pages") }
+
+    it "raises a MalformedPDFError when an InvalidPageError is raised internally" do
+      PDF::Reader.open(filename) do |reader|
+        expect { reader.pages }.to raise_error(PDF::Reader::MalformedPDFError)
+      end
+    end
+  end
+
+  context "PDF with MediaBox specified as an indirect object" do
+    let(:filename) { pdf_spec_file("indirect_mediabox") }
+
+    it "extracts text correctly" do
+      PDF::Reader.open(filename) do |reader|
+        page = reader.page(1)
+        expect(page.text).to eq("The MediaBox for this page is specified via an indirect object")
+      end
+    end
+  end
 end

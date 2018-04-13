@@ -4,6 +4,7 @@ describe PDF::Reader do
   let(:cairo_basic)   { pdf_spec_file("cairo-basic")}
   let(:oo3)           { pdf_spec_file("oo3")}
   let(:no_text_spaces) { pdf_spec_file("no_text_spaces")}
+  let(:missing_pages_dict) { pdf_spec_file('missing_pages_dict') }
 
   describe ".open()" do
 
@@ -40,6 +41,14 @@ describe PDF::Reader do
     context "with indirect_page_count" do
       it "returns the correct page_count" do
         expect(PDF::Reader.new(pdf_spec_file("indirect_page_count")).page_count).to eql(1)
+      end
+    end
+
+    context "when the PDF has no pages" do
+      it 'raises MalformedPDFError if pages object is missing' do
+        expect {
+          PDF::Reader.new(missing_pages_dict).page_count
+        }.to raise_error(PDF::Reader::MalformedPDFError)
       end
     end
   end
@@ -94,6 +103,14 @@ describe PDF::Reader do
 
       expect(metadata.encoding).to eql Encoding::UTF_8
     end
+
+    it "raises an exception if trailer Root is not a dict" do
+      filename = pdf_spec_file("trailer_root_is_not_a_dict")
+      pdf = PDF::Reader.new(filename)
+      expect {
+        pdf.metadata
+      }.to raise_error(PDF::Reader::MalformedPDFError)
+    end
   end
 
   describe "#pages" do
@@ -116,6 +133,11 @@ describe PDF::Reader do
         expect(page).to be_a_kind_of(PDF::Reader::Page)
       end
     end
+
+    it "raises aMalformedPDFError when an InvalidPageError is raised internally" do
+      reader = PDF::Reader.new(pdf_spec_file("invalid_pages"))
+      expect { reader.pages }.to raise_error(PDF::Reader::MalformedPDFError)
+    end
   end
 
   describe "#page" do
@@ -126,6 +148,10 @@ describe PDF::Reader do
     it "returns a single page from no_text_spaces" do
       expect(PDF::Reader.new(no_text_spaces).page(1)).to be_a_kind_of(PDF::Reader::Page)
     end
-  end
 
+    it "raises InvalidPageError when an invalid page number is requested" do
+      reader = PDF::Reader.new(pdf_spec_file("cairo-basic"))
+      expect { reader.page(10) }.to raise_error(PDF::Reader::InvalidPageError)
+    end
+  end
 end

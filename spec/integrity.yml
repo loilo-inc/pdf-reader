@@ -122,6 +122,12 @@ data/encrypted_version4_revision4_128bit_rc4_user_pass_apples_enc_metadata.pdf:
 data/encrypted_version4_revision4_128bit_rc4_user_pass_apples_unenc_metadata.pdf:
   :bytes: 22633
   :md5: e0877c01f132e40d451b3c3d8a7acce7
+data/encrypted_version5_revision5_256bit_aes_user_pass_apples_enc_metadata.pdf:
+  :bytes: 148015
+  :md5: 6affb89e76bff453a00f0b314aa7f6d6
+data/encrypted_version5_revision5_256bit_aes_user_pass_apples_unenc_metadata.pdf:
+  :bytes: 147997
+  :md5: 2954f1c67b1510acce653b4effa21f39
 data/encrypted_version5_revision6_256bit_aes_user_pass_apples_enc_metadata.pdf:
   :bytes: 23273
   :md5: afb2de4ebe4bcdfbded287bbbdd7f51b
@@ -146,6 +152,9 @@ data/hard_lock_under_osx.pdf:
 data/indirect_kids_array.pdf:
   :bytes: 951
   :md5: 7cb585bfe3f5266ed50bd205422953fd
+data/indirect_mediabox.pdf:
+  :bytes: 1089
+  :md5: 49a6957e4ecb6da14f4ab546909389d5
 data/indirect_page_count.pdf:
   :bytes: 957
   :md5: a84031df45b2431aabd2ca3107321c08
@@ -167,18 +176,30 @@ data/inline_image_single_line_content_stream.pdf:
 data/invalid/data.csv:
   :bytes: 26
   :md5: 7168179491824d651a304cbb83c16964
+data/invalid/invalid_pages.pdf:
+  :bytes: 108807
+  :md5: 345670e7d5533a831184603d31dfc2bb
 data/invalid/linearized_bad_xref_offset.pdf:
   :bytes: 1133257
   :md5: 245e575d617b8fe69be7e2be382a7730
+data/invalid/missing_pages_dict.pdf:
+  :bytes: 280
+  :md5: d2153a115692da4fd5937b1eec842379
 data/invalid/no_eof.pdf:
   :bytes: 9652
   :md5: a641e07a03b3cce7d6f43f5fe7f8695b
 data/invalid/no_trailer.pdf:
   :bytes: 9599
   :md5: f67206cde8a4f97924a2c93d5b8c40ad
+data/invalid/page_reference_is_not_a_dict.pdf:
+  :bytes: 108807
+  :md5: 7a6da0a240b4c3dea52308502b051cb5
 data/invalid/trailer_is_not_a_dict.pdf:
   :bytes: 9651
   :md5: 2cf861306cb9d19e926a079f54ad4e19
+data/invalid/trailer_root_is_not_a_dict.pdf:
+  :bytes: 108807
+  :md5: e00b7fc6999ca722aa31d2bb90f1e5d0
 data/junk_prefix.pdf:
   :bytes: 934
   :md5: c03c9a96cdefa78c9475b619d87e39bf
@@ -206,6 +227,9 @@ data/lzw_stream.pdf:
 data/mediabox_missing.pdf:
   :bytes: 14875
   :md5: 51560e94565ee1cd9583c388b5aa545a
+data/minimal.pdf:
+  :bytes: 739
+  :md5: b5808604069f9f61d94e0660409616ba
 data/nested_form_xobject.pdf:
   :bytes: 30365
   :md5: 441fd2c734e81784d7db0a86bf4c11e5

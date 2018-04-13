@@ -134,6 +134,9 @@ module PDF
 
     def page_count
       pages = @objects.deref(root[:Pages])
+      unless pages.kind_of?(::Hash)
+        raise MalformedPDFError, 'Pages structure is missing'
+      end
       @page_count ||= @objects.deref(pages[:Count])
     end
 
@@ -173,9 +176,13 @@ module PDF
     # methods available on each page
     #
     def pages
-      (1..self.page_count).map { |num|
-        PDF::Reader::Page.new(@objects, num, :cache => @cache)
-      }
+      (1..self.page_count).map do |num|
+        begin
+          PDF::Reader::Page.new(@objects, num, :cache => @cache)
+        rescue InvalidPageError => ex
+          raise MalformedPDFError, "Missing data for page: #{num}"
+        end
+      end
     end
 
     # returns a single PDF::Reader::Page for the specified page.
@@ -193,7 +200,7 @@ module PDF
     def page(num)
       num = num.to_i
       if num < 1 || num > self.page_count
-        raise ArgumentError, "valid pages are 1 .. #{self.page_count}"
+        raise InvalidPageError, "Valid pages are 1 .. #{self.page_count}"
       end
       PDF::Reader::Page.new(@objects, num, :cache => @cache)
     end
@@ -219,7 +226,7 @@ module PDF
           pdfdoc_to_utf8(obj)
         end
       else
-        obj
+        @objects.deref(obj)
       end
     end
 
@@ -241,7 +248,13 @@ module PDF
     end
 
     def root
-      @root ||= @objects.deref(@objects.trailer[:Root])
+      @root ||= begin
+        obj = @objects.deref(@objects.trailer[:Root])
+        unless obj.kind_of?(::Hash)
+          raise MalformedPDFError, "PDF malformed, trailer Root should be a dictionary"
+        end
+        obj
+      end
     end
 
   end
@@ -277,6 +290,7 @@ require 'pdf/reader/reference'
 require 'pdf/reader/register_receiver'
 require 'pdf/reader/null_security_handler'
 require 'pdf/reader/standard_security_handler'
+require 'pdf/reader/standard_security_handler_v5'
 require 'pdf/reader/unimplemented_security_handler'
 require 'pdf/reader/stream'
 require 'pdf/reader/text_run'
